@@ -12,6 +12,10 @@ Lab 8 — สร้าง Agent ด้วย LangGraph (ต่อยอดจา
 LLM provider : OpenRouter (OpenAI SDK + base_url) — เหมือนหลักสูตรที่ 1
 Tools        : ค้นพบอัตโนมัติจาก MCP Server (Streamable HTTP) ด้วย MCP Tool Discovery
 
+ค่าเริ่มต้นเชื่อมกับ **MCP MSSQL Server จริง** ของหลักสูตรที่ 1 (โดเมน FireExit)
+ผ่านตัวแปร MCP_SERVER_URL ใน .env — เปลี่ยน URL อย่างเดียวก็สลับ MCP server ได้
+(เช่นชี้ไป RAG MCP :8000 หรือ Seismic MCP) โดยไม่ต้องแก้โค้ด Agent เลย
+
 รัน: python src/agent_langgraph.py
 """
 import os
@@ -28,7 +32,9 @@ from langgraph.checkpoint.memory import MemorySaver
 
 load_dotenv()
 
-# MCP Server URL — เปลี่ยนเป็น URL จริงของหลักสูตรที่ 1 ได้ (เช่น MSSQL :9000, RAG :8000)
+# ---- MCP Server URL ----
+# ค่าเริ่มต้นชี้ไป MCP MSSQL Server จริงของหลักสูตรที่ 1 (ตั้งใน .env)
+# เปลี่ยนเป็น RAG MCP :8000, Seismic MCP หรือ MCP จำลองในโปรเจกต์นี้ได้โดยแก้ค่านี้
 MCP_SERVER_URL = os.environ.get("MCP_SERVER_URL", "http://127.0.0.1:9000/mcp")
 OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "anthropic/claude-sonnet-4.6")
 
@@ -52,9 +58,10 @@ async def build_graph():
     """ประกอบ LangGraph: State + Node + Edge + Checkpointer และต่อ MCP tools."""
     # ---- MCP Tool Discovery : ค้นพบ tools อัตโนมัติจาก MCP Server ----
     client = MultiServerMCPClient(
-        {"seismic": {"url": MCP_SERVER_URL, "transport": "streamable_http"}}
+        {"mcp": {"url": MCP_SERVER_URL, "transport": "streamable_http"}}
     )
     tools = await client.get_tools()
+    print(f"[MCP] เชื่อมกับ {MCP_SERVER_URL}")
     print(f"[MCP] ค้นพบ {len(tools)} tools: {[t.name for t in tools]}")
 
     llm_with_tools = build_llm().bind_tools(tools)
@@ -89,15 +96,18 @@ async def main():
     app = await build_graph()
     config = {"configurable": {"thread_id": "fireexit-demo-1"}}
 
+    # System prompt สำหรับโดเมนฐานข้อมูล (MSSQL) — ให้ agent วางแผนเรียก tool เอง
     system = (
-        "คุณคือผู้ช่วยวิเคราะห์ประกันแผ่นดินไหวของบริษัท FireExit "
-        "ใช้ tools ที่มีเพื่อค้นข้อมูล asset, แผ่นดินไหว และคำนวณ payout ตอบเป็นภาษาไทย"
+        "คุณคือนักวิเคราะห์ข้อมูลของบริษัท ตอบคำถามเชิงธุรกิจจากฐานข้อมูล MS SQL Server "
+        "ขั้นตอน: เรียก get_database_context ก่อนเสมอเพื่อดู schema แล้วจึงเขียน T-SQL "
+        "ที่ถูกต้อง (ใช้ TOP ไม่ใช่ LIMIT) ส่งให้ execute_query_tool ตอบเป็นภาษาไทย "
+        "พร้อมตารางสรุปและข้อสังเกตเชิงธุรกิจ"
     )
 
-    # คำถามหลายขั้นที่ต้องใช้หลาย tool (asset -> earthquake -> payout)
+    # คำถามเชิงธุรกิจหลายขั้นที่ต้องใช้หลาย tool ต่อเนื่อง (context -> query -> สรุป)
     questions = [
-        "มี asset ที่เอาประกันกี่รายการ และรายการไหนทุนประกันสูงสุด",
-        "เกิดแผ่นดินไหวขนาด >= 6 ที่ไหนบ้าง แล้วคำนวณ payout ให้ asset ที่อยู่เมืองเดียวกัน",
+        "แต่ละแผนกมีพนักงานที่ยัง 'ปฏิบัติงาน' อยู่กี่คน เรียงจากมากไปน้อย",
+        "พนักงาน 5 อันดับแรกที่ทำโครงการรวมมูลค่า (project_value) สูงสุดคือใคร อยู่แผนกไหน",
     ]
 
     msgs = [{"role": "system", "content": system}]
