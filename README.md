@@ -134,6 +134,35 @@ Agent จะ:
 
 ---
 
+## ทดสอบจริงกับ MCP MSSQL Server (Extension)
+
+ไฟล์ `agent_mssql_demo.py` ใช้ LangGraph Agent ตัวเดิม (State/Node/Edge/Checkpointer +
+MCP Tool Discovery) แต่ชี้ไปยัง **MCP MSSQL Server จริง** ของหลักสูตรที่ 1 (เปิดในเครื่อง
+แล้ว expose ผ่าน ngrok) — เปลี่ยนแค่ค่า `MCP_MSSQL_URL` ก็สลับจาก server จำลองมาเป็น
+server จริงได้ทันที พิสูจน์ว่า Agent กับ Tools ถูก decouple ผ่านมาตรฐาน MCP
+
+```bash
+export MCP_MSSQL_URL=https://<your-subdomain>.ngrok-free.app/mcp
+python agent_mssql_demo.py
+```
+
+ฐานข้อมูลจริงที่ทดสอบ: **TestDB** (Microsoft SQL Server 2022, 16 ตาราง, โดเมน HR)
+Agent ค้นพบ 5 tools (`get_database_context`, `execute_query_tool`, `preview_table`,
+`get_database_info_tool`, `refresh_db_cache`) แล้วตอบ **business question** โดยเรียก
+`get_database_context` ก่อนเพื่อดู schema → เขียน T-SQL → ส่งให้ `execute_query_tool` เอง
+
+> ยูทิลิตี้ `discover_mssql.py` ใช้ตรวจการเชื่อมต่อและ list tools/args schema อย่างเดียว
+
+### ผลการรันจริงกับ MSSQL (Screenshots)
+
+![MSSQL tool discovery](screenshots/04_mssql_discovery.png)
+
+![MSSQL business Q1](screenshots/05_mssql_q1.png)
+
+![MSSQL business Q2](screenshots/06_mssql_q2.png)
+
+---
+
 ## หมายเหตุด้านความปลอดภัย
 
 - `.env` (คีย์จริง) ถูก `gitignore` ไว้ — repo นี้มีเฉพาะ `.env.example` ที่ไม่มีคีย์จริง
