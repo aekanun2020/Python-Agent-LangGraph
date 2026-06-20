@@ -1,0 +1,119 @@
+"""
+Lab 8 — สร้าง Agent ด้วย LangGraph (ต่อยอดจาก Pure Python Agent ใน Lab 4)
+=========================================================================
+หลักสูตร Agentic AI Development with Python (หลักสูตรที่ 2) — Module 3.1
+
+แสดงองค์ประกอบหลักของ LangGraph ตาม course outline:
+  - State        : สถานะที่ไหลผ่านกราฟ (ในที่นี้คือ messages)
+  - Node         : call_model (เรียก LLM), tools (เรียก MCP tools)
+  - Edge         : เส้นเชื่อม + Conditional Routing (มี tool call หรือไม่)
+  - Checkpointer : Memory/Persistence แบบ built-in (MemorySaver)
+
+LLM provider : OpenRouter (OpenAI SDK + base_url) — เหมือนหลักสูตรที่ 1
+Tools        : ค้นพบอัตโนมัติจาก MCP Server (Streamable HTTP) ด้วย MCP Tool Discovery
+
+รัน: python src/agent_langgraph.py
+"""
+import os
+import asyncio
+from typing import Annotated, TypedDict
+
+from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
+from langchain_mcp_adapters.client import MultiServerMCPClient
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langgraph.prebuilt import ToolNode
+from langgraph.checkpoint.memory import MemorySaver
+
+load_dotenv()
+
+# MCP Server URL — เปลี่ยนเป็น URL จริงของหลักสูตรที่ 1 ได้ (เช่น MSSQL :9000, RAG :8000)
+MCP_SERVER_URL = os.environ.get("MCP_SERVER_URL", "http://127.0.0.1:9000/mcp")
+OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "anthropic/claude-sonnet-4.6")
+
+
+# ---- (1) State : สิ่งที่ไหลผ่านทุก Node ใน graph ----
+class AgentState(TypedDict):
+    messages: Annotated[list, add_messages]
+
+
+def build_llm() -> ChatOpenAI:
+    """LLM ชี้ไปที่ OpenRouter (thin client) — แนวคิดเดียวกับหลักสูตรที่ 1."""
+    return ChatOpenAI(
+        model=OPENROUTER_MODEL,
+        api_key=os.environ["OPENROUTER_API_KEY"],
+        base_url=os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"),
+        temperature=0,
+    )
+
+
+async def build_graph():
+    """ประกอบ LangGraph: State + Node + Edge + Checkpointer และต่อ MCP tools."""
+    # ---- MCP Tool Discovery : ค้นพบ tools อัตโนมัติจาก MCP Server ----
+    client = MultiServerMCPClient(
+        {"seismic": {"url": MCP_SERVER_URL, "transport": "streamable_http"}}
+    )
+    tools = await client.get_tools()
+    print(f"[MCP] ค้นพบ {len(tools)} tools: {[t.name for t in tools]}")
+
+    llm_with_tools = build_llm().bind_tools(tools)
+
+    # ---- (2) Node : call_model (LLM ตัดสินใจว่าจะเรียก tool หรือตอบ) ----
+    def call_model(state: AgentState):
+        response = llm_with_tools.invoke(state["messages"])
+        return {"messages": [response]}
+
+    # ---- (2) Node : tools (รัน MCP tool ตามที่ LLM ขอ) ----
+    tool_node = ToolNode(tools)
+
+    # ---- (3) Conditional Edge : ถ้ามี tool_calls ไป tools, ไม่งั้นจบ ----
+    def should_continue(state: AgentState):
+        last = state["messages"][-1]
+        return "tools" if getattr(last, "tool_calls", None) else END
+
+    # ---- ประกอบ graph ----
+    graph = StateGraph(AgentState)
+    graph.add_node("call_model", call_model)
+    graph.add_node("tools", tool_node)
+    graph.add_edge(START, "call_model")
+    graph.add_conditional_edges("call_model", should_continue, {"tools": "tools", END: END})
+    graph.add_edge("tools", "call_model")          # วนกลับให้ LLM อ่านผล tool
+
+    # ---- (4) Checkpointer : Memory/Persistence แบบ built-in ----
+    checkpointer = MemorySaver()
+    return graph.compile(checkpointer=checkpointer)
+
+
+async def main():
+    app = await build_graph()
+    config = {"configurable": {"thread_id": "fireexit-demo-1"}}
+
+    system = (
+        "คุณคือผู้ช่วยวิเคราะห์ประกันแผ่นดินไหวของบริษัท FireExit "
+        "ใช้ tools ที่มีเพื่อค้นข้อมูล asset, แผ่นดินไหว และคำนวณ payout ตอบเป็นภาษาไทย"
+    )
+
+    # คำถามหลายขั้นที่ต้องใช้หลาย tool (asset -> earthquake -> payout)
+    questions = [
+        "มี asset ที่เอาประกันกี่รายการ และรายการไหนทุนประกันสูงสุด",
+        "เกิดแผ่นดินไหวขนาด >= 6 ที่ไหนบ้าง แล้วคำนวณ payout ให้ asset ที่อยู่เมืองเดียวกัน",
+    ]
+
+    msgs = [{"role": "system", "content": system}]
+    for i, q in enumerate(questions, 1):
+        print("\n" + "=" * 70)
+        print(f"[Q{i}] ผู้ใช้: {q}")
+        msgs.append({"role": "user", "content": q})
+        result = await app.ainvoke({"messages": msgs}, config=config)
+        msgs = result["messages"]          # Checkpointer จำ context ข้ามรอบ
+        print(f"[A{i}] Agent: {msgs[-1].content}")
+
+    # แสดงว่า Checkpointer เก็บ state ไว้จริง
+    snapshot = app.get_state(config)
+    print("\n" + "=" * 70)
+    print(f"[Checkpointer] มี {len(snapshot.values['messages'])} messages ใน thread นี้")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
