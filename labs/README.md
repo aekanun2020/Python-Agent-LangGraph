@@ -2,7 +2,7 @@
 
 Lab 1–7 สอน "เขียน Agent ด้วย Pure Python เอง" (while loop + model + tools) ทีละขั้น
 จนเข้าใจกลไกเบื้องหลังทั้งหมด ก่อนจะไปดู Lab 8 ที่ทำสิ่งเดียวกันด้วย **LangGraph**
-(`src/agent_langgraph.py`) เพื่อเทียบว่า framework ช่วย "ลดโค้ดส่วนไหน" ให้บ้าง
+(`lab8_langgraph/agent_langgraph.py`) เพื่อเทียบว่า framework ช่วย "ลดโค้ดส่วนไหน" ให้บ้าง
 
 > ทุก Lab ต่อกับ **MCP MSSQL Server จริง** ของหลักสูตรที่ 1 (ฐานข้อมูล `TestDB`)
 > เป็นแกนเดียวกันทั้งหมด — สอดคล้องกับ Lab 8
