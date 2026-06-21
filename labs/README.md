@@ -1,4 +1,4 @@
-# Labs 1–7 — Pure Python Agent (หลักสูตร Agentic AI Development with Python)
+# Labs 1–9 — Agentic AI Development with Python (Pure Python → LangGraph → Deploy)
 
 Lab 1–7 สอน "เขียน Agent ด้วย Pure Python เอง" (while loop + model + tools) ทีละขั้น
 จนเข้าใจกลไกเบื้องหลังทั้งหมด ก่อนจะไปดู Lab 8 ที่ทำสิ่งเดียวกันด้วย **LangGraph**
