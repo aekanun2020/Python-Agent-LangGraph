@@ -96,12 +96,12 @@ curl -s -X POST localhost:8080/chat \
 
 ## หมายเหตุขอบเขต (ตามกติกาของ Space — ขอแจ้ง)
 
-outline ข้อ 3.3 ยกตัวอย่าง compose ที่รวมหลาย MCP service (`mssql-mcp`, `rag-mcp`,
-`seismic-mcp`) แต่ตามที่ **ตกลงกันในคอร์สว่ายึด MCP MSSQL จริงตัวเดียว** (สอดคล้อง
-Lab 4–8 และได้เอา seismic จำลองออกแล้ว) — `docker-compose.yml` จึงมี **service
-`agent` ตัวเดียว** ที่ชี้ไป MCP MSSQL จริงภายนอกผ่าน `MCP_SERVER_URL`
+course outline ข้อ 3.3 กำหนดให้ deploy ด้วย **Docker Compose + Agent + MCP Servers**
+(พร้อม Error Handling / Retry / Logging) โดยไม่ได้ล็อกว่าต้องใช้ MCP ตัวไหน — ผู้สอน
+กำหนดให้ยึด **MCP MSSQL จริงตัวเดียว** (ตาม endpoint ที่ส่งให้ และสอดคล้องกับ Lab 4–8)
+ดังนั้น `docker-compose.yml` จึงมี **service `agent` ตัวเดียว** ที่ชี้ไป MCP MSSQL จริง
+ภายนอกผ่าน `MCP_SERVER_URL`
 
-หากภายหลังต้องการรัน MCP server ใน compose ด้วย เพิ่ม service `mssql-mcp`
-(ใช้ Dockerfile ของ MCP server จากหลักสูตรที่ 1) เข้า network เดียวกัน แล้วเปลี่ยน
-`MCP_SERVER_URL=http://mssql-mcp:9000/mcp` — โครงสร้าง compose รองรับไว้แล้ว
-(เป็นการปรับให้ตรงกับ MSSQL-only ที่ตกลงไว้ ไม่ได้ลดความสามารถของ Lab)
+หากภายหลังต้องการรัน MCP MSSQL server ใน compose ด้วย ก็เพิ่ม service `mssql-mcp`
+เข้า network เดียวกัน แล้วเปลี่ยนเป็น `MCP_SERVER_URL=http://mssql-mcp:9000/mcp` —
+โครงสร้าง compose รองรับไว้แล้ว (อยู่ในขอบเขต outline ไม่ได้ลดความสามารถของ Lab)

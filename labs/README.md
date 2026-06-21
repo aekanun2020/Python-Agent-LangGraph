@@ -132,8 +132,8 @@ uvicorn labs.lab9_deploy.app:app --host 0.0.0.0 --port 8080   # หรือ  do
 
 ## หมายเหตุขอบเขต (ตามกติกาของ Space)
 
-- Lab 1–7 ยึด **MCP MSSQL จริงตัวเดียว** เป็นแกน (ตามที่ตกลงไว้ และสอดคล้องกับ Lab 8)
-- ใน outline เดิม Lab 5 ยกตัวอย่าง skill ชื่อ `seismic_insurance` — แต่เนื่องจาก
-  ฐานข้อมูลจริงคือ `TestDB` (โดเมน HR/Customer Service) จึงเปลี่ยนตัวอย่าง skill เป็น
+- Lab 1–7 ยึด **MCP MSSQL จริงตัวเดียว** เป็นแกน (ตาม MCP server endpoint ที่ผู้สอนกำหนด และสอดคล้องกับ Lab 8)
+- course outline ข้อ 2.1 (Lab 5) กำหนดแค่ให้มี **Skill Routing ตาม domain** ไม่ได้ล็อกชื่อ skill —
+  เนื่องจากฐานข้อมูลจริงคือ `TestDB` (โดเมน HR / Customer Service) จึงเลือก skill เป็น
   `hr_analytics`, `customer_service`, `database_query` ให้ตรงข้อมูลจริง
-  (เป็นการปรับให้สอดคล้องข้อมูล ไม่ได้ขยายขอบเขตเนื้อหา)
+  (อยู่ในขอบเขต outline ไม่ได้ขยายเนื้อหา)
