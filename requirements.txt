@@ -1,5 +1,5 @@
 # หลักสูตร Agentic AI Development with Python
-# ทดสอบบน Python 3.11 (Miniconda env: seismic-mcp)
+# ทดสอบบน Python 3.11 (Miniconda env: agentic-ai)
 
 # --- Lab 1–7: Pure Python Agent (เขียน agent loop / MCP client เอง) ---
 # Lab 2 เรียก LLM ผ่าน OpenRouter ด้วย OpenAI-compatible SDK

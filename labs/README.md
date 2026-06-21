@@ -50,8 +50,8 @@ Lab 3  agent loop (local tools)
 
 ```bash
 # สร้าง env (Python 3.11)
-conda create -n seismic-mcp python=3.11 -y
-conda activate seismic-mcp
+conda create -n agentic-ai python=3.11 -y
+conda activate agentic-ai
 
 # ติดตั้ง dependencies
 pip install -r requirements.txt
@@ -76,7 +76,7 @@ cp .env.example .env
 > รันจาก root ของโปรเจกต์เสมอ (เพื่อให้ `import labs.core` ทำงาน)
 
 ```bash
-conda activate seismic-mcp
+conda activate agentic-ai
 
 # Lab 1 — ตรวจ LLM + MCP พร้อมใช้งานไหม
 python labs/lab1_setup/check_env.py

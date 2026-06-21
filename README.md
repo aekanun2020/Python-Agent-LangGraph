@@ -69,11 +69,11 @@ Python-Agent-LangGraph/
 ### 1) สร้างและเปิดใช้งาน conda environment
 
 ```bash
-# สร้าง env ชื่อ seismic-mcp ด้วย Python 3.11
-conda create -n seismic-mcp python=3.11 -y
+# สร้าง env ชื่อ agentic-ai ด้วย Python 3.11
+conda create -n agentic-ai python=3.11 -y
 
 # เปิดใช้งาน
-conda activate seismic-mcp
+conda activate agentic-ai
 ```
 
 ### 2) ติดตั้ง dependencies
@@ -105,14 +105,14 @@ cp .env.example .env
 ### (ตัวเลือก) ตรวจการเชื่อมต่อ + ดู tools ที่ค้นพบ
 
 ```bash
-conda activate seismic-mcp
+conda activate agentic-ai
 python discover_mssql.py
 ```
 
 ### รัน LangGraph Agent
 
 ```bash
-conda activate seismic-mcp
+conda activate agentic-ai
 python labs/lab8_langgraph/agent_langgraph.py
 ```
 

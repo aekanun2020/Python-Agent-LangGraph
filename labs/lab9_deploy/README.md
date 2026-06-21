@@ -64,7 +64,7 @@ Response:
 
 ### 1) รันแบบ local (ทดสอบเร็ว)
 ```bash
-conda activate seismic-mcp
+conda activate agentic-ai
 pip install -r labs/lab9_deploy/requirements.txt
 # รันจาก root ของ repo (ให้ import labs.* ได้)
 uvicorn labs.lab9_deploy.app:app --host 0.0.0.0 --port 8080
