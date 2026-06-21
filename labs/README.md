@@ -25,6 +25,7 @@ Lab 3  agent loop (local tools)
             └─ Lab 6  + TodoWrite (วางแผนงานหลายขั้น)
                  └─ Lab 7  + Memory + Compaction + Note-taking
                       └─ Lab 8  = ทุกอย่างข้างบน แต่เขียนด้วย LangGraph (`lab8_langgraph/`)
+                           └─ Lab 9  = ห่อ Lab 8 เป็น FastAPI API + Docker (`lab9_deploy/`)
 ```
 
 ---
@@ -41,6 +42,7 @@ Lab 3  agent loop (local tools)
 | 6 | `lab6_todo/agent_todo.py` | TodoWrite — บทที่ 2.2 | วางแผนงานหลายขั้นใน state |
 | 7 | `lab7_memory/agent_memory.py` | Memory — บทที่ 2.3 | จำข้ามรอบ + compaction + notes |
 | 8 | `lab8_langgraph/agent_langgraph.py` | LangGraph Agent — บทที่ 3.1 | State/Node/Edge/Checkpointer (เทียบ Pure Python) |
+| 9 | `lab9_deploy/` (app.py, Dockerfile) | Deploy — บทที่ 3.3 | FastAPI `/chat` + Docker + Retry/Logging |
 
 ---
 
@@ -101,6 +103,9 @@ python labs/lab7_memory/agent_memory.py
 
 # Lab 8 — LangGraph Agent (ทำสิ่งเดียวกับ Lab 4 แต่เขียนด้วย LangGraph)
 python labs/lab8_langgraph/agent_langgraph.py
+
+# Lab 9 — ห่อ agent เป็น API + Docker (ดูรายละเอียดที่ labs/lab9_deploy/README.md)
+uvicorn labs.lab9_deploy.app:app --host 0.0.0.0 --port 8080   # หรือ  docker compose up --build
 ```
 
 ---
@@ -118,6 +123,7 @@ python labs/lab8_langgraph/agent_langgraph.py
 | 6 | `screenshots/labs/lab6_todowrite.png` | วางแผน todo ก่อน แล้วอัปเดตสถานะระหว่างทำ |
 | 7 | `screenshots/labs/lab7_memory.png` | จำบริบทข้ามรอบได้ ("แผนกนั้น" อ้างถึง IT จากรอบก่อน) |
 | 8 | `screenshots/labs/lab8_01_mssql_discovery.png`, `lab8_02_agent_q1.png`, `lab8_03_agent_q2.png` | LangGraph: discover 5 tools, ตอบ Q1/Q2, Checkpointer จำ context ข้ามคำถาม |
+| 9 | `screenshots/labs/lab9_api_deploy.png` | API service: `/health` ok, `POST /chat` 2 รอบ (thread เดียว) + log tool calls + Checkpointer จำ context |
 
 > Lab 2 ไม่ได้แนบภาพ เพราะ `compare_models.py` เรียกหลายโมเดลและมีค่าใช้จ่าย —
 > รันได้เองตามคำสั่งด้านบน
