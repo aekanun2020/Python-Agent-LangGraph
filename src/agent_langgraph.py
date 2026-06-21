@@ -12,9 +12,9 @@ Lab 8 — สร้าง Agent ด้วย LangGraph (ต่อยอดจา
 LLM provider : OpenRouter (OpenAI SDK + base_url) — เหมือนหลักสูตรที่ 1
 Tools        : ค้นพบอัตโนมัติจาก MCP Server (Streamable HTTP) ด้วย MCP Tool Discovery
 
-ค่าเริ่มต้นเชื่อมกับ **MCP MSSQL Server จริง** ของหลักสูตรที่ 1 (โดเมน FireExit)
+ค่าเริ่มต้นเชื่อมกับ **MCP MSSQL Server จริง** ของหลักสูตรที่ 1 (ฐานข้อมูล TestDB)
 ผ่านตัวแปร MCP_SERVER_URL ใน .env — เปลี่ยน URL อย่างเดียวก็สลับ MCP server ได้
-(เช่นชี้ไป RAG MCP :8000 หรือ Seismic MCP) โดยไม่ต้องแก้โค้ด Agent เลย
+(เช่นชี้ไป RAG MCP :8000) โดยไม่ต้องแก้โค้ด Agent เลย
 
 รัน: python src/agent_langgraph.py
 """
@@ -34,7 +34,7 @@ load_dotenv()
 
 # ---- MCP Server URL ----
 # ค่าเริ่มต้นชี้ไป MCP MSSQL Server จริงของหลักสูตรที่ 1 (ตั้งใน .env)
-# เปลี่ยนเป็น RAG MCP :8000, Seismic MCP หรือ MCP จำลองในโปรเจกต์นี้ได้โดยแก้ค่านี้
+# เปลี่ยนเป็น MCP Server อื่น เช่น RAG MCP :8000 ได้โดยแก้ค่านี้อย่างเดียว
 MCP_SERVER_URL = os.environ.get("MCP_SERVER_URL", "http://127.0.0.1:9000/mcp")
 OPENROUTER_MODEL = os.environ.get("OPENROUTER_MODEL", "anthropic/claude-sonnet-4.6")
 

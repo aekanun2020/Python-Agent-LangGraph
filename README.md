@@ -1,23 +1,27 @@
-# Lab 8 — สร้าง Agent ด้วย LangGraph + MCP
+# Lab 8 — สร้าง Agent ด้วย LangGraph + MCP (MSSQL จริง)
 
 > หลักสูตร **Agentic AI Development with Python (หลักสูตรที่ 2)** — Module 3.1
 > ต่อยอดจากหลักสูตรที่ 1 (Implementing MCP Server) โดยเปลี่ยนจาก *การใช้* MCP ผ่าน Claude Desktop/LangFlow มาเป็น *การเขียน* Agent ด้วย Pure Python + LangGraph ที่เรียกใช้ MCP Server เดียวกัน
 
-แล็บนี้สาธิตการประกอบ **LangGraph Agent** ครบทุกองค์ประกอบหลักตาม course outline และให้ Agent ค้นพบ (discover) และเรียกใช้ **MCP Tools** ผ่าน **Streamable HTTP** โดยมี **OpenRouter** เป็น LLM provider (แนวคิด thin client เดียวกับหลักสูตรที่ 1)
+แล็บนี้สาธิตการประกอบ **LangGraph Agent** ครบทุกองค์ประกอบหลักตาม course outline และให้ Agent ค้นพบ (discover) และเรียกใช้ **MCP Tools** ของ **MCP MSSQL Server จริง** (หลักสูตรที่ 1) ผ่าน **Streamable HTTP** โดยมี **OpenRouter** เป็น LLM provider (แนวคิด thin client เดียวกับหลักสูตรที่ 1)
 
 ---
 
-## โดเมนตัวอย่าง: FireExit Seismic Insurance
+## โดเมน: MCP MSSQL Server จริง (TestDB)
 
-MCP Server จำลองโดเมนประกันภัยแผ่นดินไหว ให้บริการ 3 tools:
+Agent เชื่อมกับ **MCP MSSQL Server จริง** ของหลักสูตรที่ 1 ที่เปิดในเครื่องแล้ว expose ผ่าน ngrok ฐานข้อมูลที่ทดสอบคือ **TestDB** (Microsoft SQL Server 2022, 16 ตาราง, โดเมน HR)
+
+MCP Server ให้บริการ 5 tools ที่ Agent ค้นพบอัตโนมัติ:
 
 | Tool | หน้าที่ |
 | --- | --- |
-| `list_insured_assets` | คืนรายการ asset ที่เอาประกัน (จำลองแทน MSSQL ในหลักสูตรที่ 1) |
-| `get_recent_earthquakes` | ดึงเหตุการณ์แผ่นดินไหวล่าสุด กรองด้วยขนาดขั้นต่ำ (จำลองแทน USGS/TMD) |
-| `calculate_parametric_payout` | คำนวณ parametric payout จากขนาดแผ่นดินไหว |
+| `get_database_context` | คืน schema ทั้งหมด + ความสัมพันธ์ + คู่มือ T-SQL (เรียกก่อนเสมอ) |
+| `execute_query_tool` | รันคำสั่ง T-SQL บนฐานข้อมูล |
+| `preview_table` | แสดงตัวอย่างข้อมูลในตาราง |
+| `get_database_info_tool` | ข้อมูลทั่วไปของฐานข้อมูล (ชื่อ จำนวนตาราง ขนาด เวอร์ชัน) |
+| `refresh_db_cache` | รีเฟรช cache ของ schema |
 
-ตารางจ่ายแบบ parametric: `mag >= 6.0 → 100%`, `>= 5.0 → 50%`, `>= 4.0 → 10%`, ต่ำกว่านั้นไม่จ่าย
+> Agent จะ "วางแผนเอง": เรียก `get_database_context` ดู schema ก่อน → เขียน T-SQL (ใช้ `TOP` ไม่ใช่ `LIMIT`) → ส่งให้ `execute_query_tool` → สรุปผลเชิงธุรกิจเป็นภาษาไทย
 
 ---
 
@@ -38,12 +42,12 @@ MCP Server จำลองโดเมนประกันภัยแผ่น
 ```
 Python-Agent-LangGraph/
 ├── src/
-│   ├── mcp_server_seismic.py   # MCP Server (FastMCP, Streamable HTTP, port 9000)
-│   └── agent_langgraph.py      # LangGraph Agent + MCP client + OpenRouter
+│   └── agent_langgraph.py      # LangGraph Agent + MCP client + OpenRouter (MSSQL จริง)
+├── discover_mssql.py           # ยูทิลิตี้ตรวจการเชื่อมต่อ + list tools/args schema
 ├── screenshots/                # ภาพหน้าจอผลการรันทดสอบจริง
-│   ├── 01_mcp_server_running.png
-│   ├── 02_agent_run_q1.png
-│   └── 03_agent_run_q2.png
+│   ├── 01_mssql_discovery.png
+│   ├── 02_agent_q1.png
+│   └── 03_agent_q2.png
 ├── requirements.txt
 ├── .env.example                # เทมเพลต env (ไม่มีคีย์จริง)
 ├── .gitignore
@@ -79,7 +83,10 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-จากนั้นแก้ไข `.env` ใส่ `OPENROUTER_API_KEY` ของคุณ (ขอคีย์ได้ที่ https://openrouter.ai/keys)
+จากนั้นแก้ไข `.env`:
+
+- ใส่ `OPENROUTER_API_KEY` ของคุณ (ขอคีย์ได้ที่ https://openrouter.ai/keys)
+- ตั้ง `MCP_SERVER_URL` ให้ชี้ไปยัง **MCP MSSQL Server จริง** ของคุณ (เปิด MCP MSSQL ในเครื่องแล้ว expose ผ่าน ngrok เช่น `https://<subdomain>.ngrok-free.app/mcp`)
 
 > ⚠️ ไฟล์ `.env` ถูก `gitignore` ไว้แล้ว — **ห้าม commit คีย์จริงขึ้น repo เด็ดขาด**
 
@@ -87,18 +94,16 @@ cp .env.example .env
 
 ## การรันทดสอบ
 
-ต้องเปิด **2 เทอร์มินัล** (ทั้งคู่ activate env `seismic-mcp`)
+> ต้องเปิด **MCP MSSQL Server จริง** ของหลักสูตรที่ 1 ไว้ และ expose ผ่าน ngrok แล้วตั้ง `MCP_SERVER_URL` ใน `.env` ให้ตรงกัน
 
-### เทอร์มินัลที่ 1 — รัน MCP Server
+### (ตัวเลือก) ตรวจการเชื่อมต่อ + ดู tools ที่ค้นพบ
 
 ```bash
 conda activate seismic-mcp
-python src/mcp_server_seismic.py
+python discover_mssql.py
 ```
 
-จะเห็น FastMCP เริ่มทำงานที่ `http://127.0.0.1:9000/mcp`
-
-### เทอร์มินัลที่ 2 — รัน LangGraph Agent
+### รัน LangGraph Agent
 
 ```bash
 conda activate seismic-mcp
@@ -106,60 +111,31 @@ python src/agent_langgraph.py
 ```
 
 Agent จะ:
-1. ค้นพบ 3 tools จาก MCP Server อัตโนมัติ
-2. ตอบคำถามที่ต้องใช้หลาย tool ต่อเนื่องกัน (asset → earthquake → payout)
-3. แสดงจำนวน messages ที่ `Checkpointer` เก็บไว้ใน thread
+
+1. ค้นพบ 5 tools จาก MCP MSSQL Server อัตโนมัติ (MCP Tool Discovery)
+2. ตอบ **business question** โดยเรียก `get_database_context` ดู schema → เขียน T-SQL → ส่งให้ `execute_query_tool` เอง
+3. แสดงจำนวน messages ที่ `Checkpointer` (`MemorySaver`) เก็บไว้ใน thread เดียวกัน
 
 ---
 
 ## ผลการรันทดสอบ (Screenshots)
 
-### 1. MCP Server ทำงาน (Streamable HTTP)
-![MCP Server running](screenshots/01_mcp_server_running.png)
+### 1. MCP Tool Discovery — ค้นพบ 5 tools จาก MCP MSSQL Server จริง
+![MCP Tool Discovery](screenshots/01_mssql_discovery.png)
 
-### 2. Agent ตอบคำถามที่ 1 — รายการ asset และทุนประกันสูงสุด
-![Agent run Q1](screenshots/02_agent_run_q1.png)
+### 2. Business Question 1 — จำนวนพนักงานที่ปฏิบัติงานแยกตามแผนก
+![Agent Q1](screenshots/02_agent_q1.png)
 
-### 3. Agent ตอบคำถามที่ 2 — คำนวณ payout จากแผ่นดินไหว (multi-step tool calls)
-![Agent run Q2](screenshots/03_agent_run_q2.png)
+### 3. Business Question 2 — Top-5 พนักงานตามมูลค่าโครงการรวม (+ Checkpointer)
+![Agent Q2](screenshots/03_agent_q2.png)
 
----
-
-## เชื่อมต่อกับ MCP Server จริงของหลักสูตรที่ 1
-
-โปรเจกต์นี้ใช้ MCP Server จำลองเพื่อให้รันทดสอบได้ในเครื่องเดียว แต่ผู้เรียนสามารถชี้ Agent
-ไปยัง MCP Server จริงจากหลักสูตรที่ 1 (เช่น MSSQL `:9000`, RAG `:8000`) ได้โดยแก้ค่า
-`MCP_SERVER_URL` ในไฟล์ `.env` โดยไม่ต้องแก้โค้ด Agent เลย — แสดงให้เห็นว่า Agent กับ Tools
-ถูก decouple ผ่านมาตรฐาน MCP
+> Agent วางแผนเรียก tool เอง (context → query → สรุป) และ `Checkpointer` เก็บ 11 messages ใน thread เดียวกัน แสดงว่าจำ context ข้ามคำถามได้จริง
 
 ---
 
-## ทดสอบจริงกับ MCP MSSQL Server (Extension)
+## สลับไปยัง MCP Server อื่นได้โดยไม่ต้องแก้โค้ด
 
-ไฟล์ `agent_mssql_demo.py` ใช้ LangGraph Agent ตัวเดิม (State/Node/Edge/Checkpointer +
-MCP Tool Discovery) แต่ชี้ไปยัง **MCP MSSQL Server จริง** ของหลักสูตรที่ 1 (เปิดในเครื่อง
-แล้ว expose ผ่าน ngrok) — เปลี่ยนแค่ค่า `MCP_MSSQL_URL` ก็สลับจาก server จำลองมาเป็น
-server จริงได้ทันที พิสูจน์ว่า Agent กับ Tools ถูก decouple ผ่านมาตรฐาน MCP
-
-```bash
-export MCP_MSSQL_URL=https://<your-subdomain>.ngrok-free.app/mcp
-python agent_mssql_demo.py
-```
-
-ฐานข้อมูลจริงที่ทดสอบ: **TestDB** (Microsoft SQL Server 2022, 16 ตาราง, โดเมน HR)
-Agent ค้นพบ 5 tools (`get_database_context`, `execute_query_tool`, `preview_table`,
-`get_database_info_tool`, `refresh_db_cache`) แล้วตอบ **business question** โดยเรียก
-`get_database_context` ก่อนเพื่อดู schema → เขียน T-SQL → ส่งให้ `execute_query_tool` เอง
-
-> ยูทิลิตี้ `discover_mssql.py` ใช้ตรวจการเชื่อมต่อและ list tools/args schema อย่างเดียว
-
-### ผลการรันจริงกับ MSSQL (Screenshots)
-
-![MSSQL tool discovery](screenshots/04_mssql_discovery.png)
-
-![MSSQL business Q1](screenshots/05_mssql_q1.png)
-
-![MSSQL business Q2](screenshots/06_mssql_q2.png)
+เนื่องจาก Agent กับ Tools ถูก decouple ผ่านมาตรฐาน **MCP** ผู้เรียนสามารถชี้ Agent ไปยัง MCP Server อื่นของหลักสูตรที่ 1 (เช่น RAG MCP `:8000`) ได้โดยแก้แค่ค่า `MCP_SERVER_URL` ในไฟล์ `.env` — ไม่ต้องแก้โค้ด Agent เลย
 
 ---
 
