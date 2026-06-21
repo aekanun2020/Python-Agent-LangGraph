@@ -24,7 +24,7 @@ Lab 3  agent loop (local tools)
        └─ Lab 5  + Skill routing (Progressive Disclosure)
             └─ Lab 6  + TodoWrite (วางแผนงานหลายขั้น)
                  └─ Lab 7  + Memory + Compaction + Note-taking
-                      └─ Lab 8  = ทุกอย่างข้างบน แต่เขียนด้วย LangGraph
+                      └─ Lab 8  = ทุกอย่างข้างบน แต่เขียนด้วย LangGraph (`lab8_langgraph/`)
 ```
 
 ---
@@ -40,6 +40,7 @@ Lab 3  agent loop (local tools)
 | 5 | `lab5_skills/agent_skills.py` | Skill routing — บทที่ 2.1 | SkillLoader + Progressive Disclosure |
 | 6 | `lab6_todo/agent_todo.py` | TodoWrite — บทที่ 2.2 | วางแผนงานหลายขั้นใน state |
 | 7 | `lab7_memory/agent_memory.py` | Memory — บทที่ 2.3 | จำข้ามรอบ + compaction + notes |
+| 8 | `lab8_langgraph/agent_langgraph.py` | LangGraph Agent — บทที่ 3.1 | State/Node/Edge/Checkpointer (เทียบ Pure Python) |
 
 ---
 
@@ -97,6 +98,9 @@ python labs/lab6_todo/agent_todo.py
 
 # Lab 7 — Memory ข้ามรอบ
 python labs/lab7_memory/agent_memory.py
+
+# Lab 8 — LangGraph Agent (ทำสิ่งเดียวกับ Lab 4 แต่เขียนด้วย LangGraph)
+python labs/lab8_langgraph/agent_langgraph.py
 ```
 
 ---
@@ -113,6 +117,7 @@ python labs/lab7_memory/agent_memory.py
 | 5 | `screenshots/labs/lab5_skill_routing.png` | route ไป `hr_analytics` และ `customer_service` ถูกตาม domain |
 | 6 | `screenshots/labs/lab6_todowrite.png` | วางแผน todo ก่อน แล้วอัปเดตสถานะระหว่างทำ |
 | 7 | `screenshots/labs/lab7_memory.png` | จำบริบทข้ามรอบได้ ("แผนกนั้น" อ้างถึง IT จากรอบก่อน) |
+| 8 | `screenshots/labs/lab8_01_mssql_discovery.png`, `lab8_02_agent_q1.png`, `lab8_03_agent_q2.png` | LangGraph: discover 5 tools, ตอบ Q1/Q2, Checkpointer จำ context ข้ามคำถาม |
 
 > Lab 2 ไม่ได้แนบภาพ เพราะ `compare_models.py` เรียกหลายโมเดลและมีค่าใช้จ่าย —
 > รันได้เองตามคำสั่งด้านบน

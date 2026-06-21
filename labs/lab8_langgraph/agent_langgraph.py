@@ -16,7 +16,7 @@ Tools        : ค้นพบอัตโนมัติจาก MCP Server (S
 ผ่านตัวแปร MCP_SERVER_URL ใน .env — เปลี่ยน URL อย่างเดียวก็สลับ MCP server ได้
 (เช่นชี้ไป RAG MCP :8000) โดยไม่ต้องแก้โค้ด Agent เลย
 
-รัน: python src/agent_langgraph.py
+รัน: python labs/lab8_langgraph/agent_langgraph.py
 """
 import os
 import asyncio

@@ -1,8 +1,14 @@
-"""ตรวจการเชื่อมต่อ MCP MSSQL จริง (ngrok) + ค้นพบ tools และ schema."""
+"""ตรวจการเชื่อมต่อ MCP MSSQL จริง (ngrok) + ค้นพบ tools และ schema.
+
+อ่าน MCP_SERVER_URL จาก .env (แก้ URL ngrok ที่ไฟล์ .env ที่เดียว — ไม่ต้องแก้โค้ด)
+"""
+import os
 import asyncio
+from dotenv import load_dotenv
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
-URL = "https://9f9a-184-22-55-183.ngrok-free.app/mcp"
+load_dotenv()
+URL = os.environ.get("MCP_SERVER_URL", "http://127.0.0.1:9000/mcp")
 
 
 async def main():
