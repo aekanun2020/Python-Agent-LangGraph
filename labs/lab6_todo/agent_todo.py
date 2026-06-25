@@ -21,6 +21,8 @@ SYSTEM = (
     "คุณคือ agent ที่ทำงานเป็นขั้นตอน ตอบเป็นภาษาไทย\n"
     "กฎ: ถ้างานมี 3 ขั้นขึ้นไป ให้เรียก todo_write เขียนแผนก่อนเริ่มลงมือ "
     "แล้วทำทีละข้อ เรียก todo_update เปลี่ยนสถานะเป็น 'doing' ก่อนทำ และ 'done' เมื่อเสร็จ\n"
+    "index ของ todo_update ให้ใช้เลขข้อแบบ 1-based ตามที่แสดงใน list (ข้อแรก = 1)\n"
+    "เมื่อทำครบทุกข้อแล้ว (todo เป็น done หมด) ให้สรุปข้อค้นพบเชิงธุรกิจเป็นข้อความสุดท้าย โดยไม่ต้องเรียก tool อีก\n"
     "ใช้ MCP tools ของฐานข้อมูล (เรียก get_database_context ก่อนเขียน T-SQL ใช้ TOP ไม่ใช่ LIMIT)"
 )
 
@@ -35,8 +37,15 @@ class TodoState:
         return self.render()
 
     def update(self, index: int, status: str) -> str:
-        # รองรับทั้ง index แบบ 1-based (ตามที่เราสร้าง) และ 0-based ที่ LLM อาจส่งมา
-        target = index if any(it["index"] == index for it in self.items) else index + 1
+        # normalize: รองรับ index ทั้ง 1-based (ตามที่ render แสดง) และ 0-based (ที่ LLM บางครั้งส่งมา)
+        # ถ้า index ตรงกับเลขข้อ 1-based ที่มีอยู่ → ใช้เลย; ไม่งั้นจึงลองตีความเป็น 0-based (index+1)
+        valid = {it["index"] for it in self.items}
+        if index in valid:
+            target = index
+        elif (index + 1) in valid:
+            target = index + 1
+        else:
+            return self.render()  # index ไม่ถูกต้อง — ไม่แก้ไขอะไร
         for it in self.items:
             if it["index"] == target:
                 it["status"] = status
@@ -65,7 +74,7 @@ def build_tools(registry: ToolRegistry) -> list[dict]:
     return todo_tools + registry.openai_tools
 
 
-def run(question: str, registry: ToolRegistry, max_steps: int = 16):
+def run(question: str, registry: ToolRegistry, max_steps: int = 30):
     todo = TodoState()
     tools = build_tools(registry)
     messages = [
@@ -97,7 +106,17 @@ def run(question: str, registry: ToolRegistry, max_steps: int = 16):
         print("-" * 60)
         print(f"[todo สุดท้าย]\n{todo.render()}")
         return msg.content
-    return None
+
+    # ชนเพดาน max_steps — บังคับให้โมเดลสรุปปิดท้าย จะได้ไม่จบแบบเงียบๆ โดยไม่มีบทสรุป
+    messages.append({"role": "user",
+                     "content": "ถึงขีดจำกัดขั้นตอนแล้ว ห้ามเรียก tool เพิ่ม — สรุปข้อค้นพบเชิงธุรกิจจากข้อมูลที่ได้มาเป็นข้อความสุดท้าย"})
+    final = llm.chat(messages=messages)  # ไม่ส่ง tools — บังคับให้ตอบเป็นข้อความ
+    content = final.choices[0].message.content
+    print("-" * 60)
+    print(f"[answer]\n{content}")
+    print("-" * 60)
+    print(f"[todo สุดท้าย]\n{todo.render()}")
+    return content
 
 
 def main():
