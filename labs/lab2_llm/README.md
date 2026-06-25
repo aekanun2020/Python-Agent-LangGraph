@@ -33,6 +33,59 @@ python labs/lab2_llm/compare_models.py
 
 ---
 
+## `llm` กับ `config` มาจากไหน?
+
+หลายคนสงสัยว่า `llm.chat(...)` ที่เรียกใน Lab นี้ ตัว `llm` เป็น object ที่ได้มาอย่างไร
+— คำตอบคือ **`llm` ไม่ใช่ instance ของคลาส แต่เป็น "module"** ที่ import มาจาก `labs/core/`
+
+บรรทัดต้นไฟล์ของ Lab 2 ทำสองอย่าง:
+
+```python
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))  # (1) เพิ่ม root repo เข้า import path
+
+from labs.core import config, llm   # (2) import โมดูลกลางที่ใช้ร่วมทุก Lab
+```
+
+- **(1)** `sys.path.insert(...)` ทำให้ Python มองเห็นแพ็กเกจ `labs.*` แม้รันสคริปต์ตรงๆ จาก root
+  (เลยรันได้ทั้ง `python labs/lab2_llm/first_llm.py`)
+- **(2)** `llm` คือไฟล์ `labs/core/llm.py` ทั้งไฟล์ — เรียก `llm.chat(...)` ก็คือเรียก **ฟังก์ชัน** `chat()` ในโมดูลนั้น
+  ส่วน `config` คือ `labs/core/config.py` ที่โหลดค่าจาก `.env`
+
+### ใต้ฝา: `llm.chat()` ทำงานอย่างไร
+
+ไฟล์ `labs/core/llm.py` มีแค่ 2 ฟังก์ชันหลัก:
+
+```python
+from openai import OpenAI
+from . import config
+
+def build_client() -> OpenAI:
+    return OpenAI(
+        api_key=config.require_api_key(),       # อ่านคีย์จาก .env (ผ่าน config)
+        base_url=config.OPENROUTER_BASE_URL,     # ชี้ base_url ไป OpenRouter — นี่คือหัวใจ "thin client"
+    )
+
+def chat(messages, model=None, tools=None, **kwargs):
+    client = build_client()                      # สร้าง OpenAI client (ชี้ OpenRouter)
+    params = {"model": model or config.OPENROUTER_MODEL, "messages": messages}
+    if tools: params["tools"] = tools
+    params.update(kwargs)                        # max_tokens ฯลฯ ส่งผ่านตรงนี้
+    return client.chat.completions.create(**params)
+```
+
+จุดที่ต้องเข้าใจ:
+- `llm.chat()` ใช้ **OpenAI SDK ตัวจริง** แต่เปลี่ยน `base_url` เป็นของ OpenRouter — นี่คือนิยามของ
+  "thin client" ตาม outline บท 1.2 (ไม่ต้องใช้ framework แยกของ OpenRouter)
+- `api_key`, `base_url`, `model` เริ่มต้น ทั้งหมดมาจาก `config` ซึ่งอ่านมาจาก `.env` —
+  จึง **เปลี่ยนโมเดล/คีย์/endpoint ได้จากจุดเดียว** โดยไม่แตะโค้ด Lab
+- `**kwargs` คือช่องที่ทำให้ Lab ส่ง `max_tokens` (Lab 2) หรือ `tools` (Lab 3+) เข้าไปได้
+
+> สรุป: `llm` = โมดูล `labs/core/llm.py`, `llm.chat()` = ฟังก์ชันที่ห่อ `OpenAI(...).chat.completions.create(...)`
+> ไว้ชั้นเดียว ทุก Lab ตั้งแต่ Lab 2 เป็นต้นไปจึงเรียก LLM ด้วยรูปแบบเดียวกันหมด
+
+---
+
 ## อธิบายจุดสำคัญของโค้ด
 
 ### `first_llm.py` — โครงสร้าง messages และ token usage
@@ -64,7 +117,8 @@ resp = llm.chat(messages=messages, max_tokens=max_tokens)
 
 สรุปผลเป็นตาราง `model / total_tok / sec / note` เพื่อเปรียบเทียบได้ทันที
 
-> จุดที่ควรเปิดอ่าน: parameter `model=model` ใน `llm.chat()` — แสดงว่า OpenRouter รองรับการเลือกโมเดลต่อ request โดยไม่ต้องสร้าง client ใหม่
+> จุดที่ควรเปิดอ่าน: parameter `model=model` ใน `llm.chat()` — แสดงว่า OpenRouter รองรับการเลือกโมเดล
+> ต่อ request ได้ (ส่งชื่อโมเดลต่างกันในแต่ละครั้งที่เรียก) โดยใช้ base_url/คีย์เดิมจาก `config`
 
 ---
 
