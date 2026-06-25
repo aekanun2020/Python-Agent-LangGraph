@@ -2,6 +2,8 @@
 
 > หลักสูตร **Agentic AI Development with Python (หลักสูตรที่ 2)** — Module 1.2
 
+> **ตำแหน่งใน [8 Layer ของ repo](../../README.md#สถาปัตยกรรม-agent-app--agent--llm--8-layers):** แกนกลางสุด คือตัว **LLM (reasoning/decision)** เอง — เรียกโมเดลตรงๆ ยังไม่มี layer ห่อ (ยังไม่ใช่ agent loop)
+
 ---
 
 ## จุดประสงค์การเรียนรู้

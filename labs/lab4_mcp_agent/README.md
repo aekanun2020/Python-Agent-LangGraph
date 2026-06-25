@@ -2,6 +2,8 @@
 
 > หลักสูตร **Agentic AI Development with Python (หลักสูตรที่ 2)** — Module 1.4
 
+> **ตำแหน่งใน [8 Layer ของ repo](../../README.md#สถาปัตยกรรม-agent-app--agent--llm--8-layers):** Layer 3 (Tools+Skills) เป็นหลัก — ต่อ **MCP** จริงเป็นแหล่ง tools ภายนอก โดยยังหมุนใน Reasoning Loop (Layer 5) เดิม
+
 ---
 
 ## จุดประสงค์การเรียนรู้

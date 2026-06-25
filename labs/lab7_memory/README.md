@@ -2,6 +2,8 @@
 
 > หลักสูตร **Agentic AI Development with Python (หลักสูตรที่ 2)** — Module 2.3
 
+> **ตำแหน่งใน [8 Layer ของ repo](../../README.md#สถาปัตยกรรม-agent-app--agent--llm--8-layers):** Layer 2 (**Memory**) เป็นหลัก — จำข้ามรอบ + compaction + note-taking; พฤติกรรม inject note เป็นร่องรอยของ Layer 4 (Hooks)
+
 ---
 
 ## จุดประสงค์การเรียนรู้

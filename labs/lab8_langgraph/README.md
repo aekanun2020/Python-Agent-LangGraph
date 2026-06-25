@@ -2,6 +2,8 @@
 
 > หลักสูตร **Agentic AI Development with Python (หลักสูตรที่ 2)** — Module 3.1
 
+> **ตำแหน่งใน [8 Layer ของ repo](../../README.md#สถาปัตยกรรม-agent-app--agent--llm--8-layers):** รวม Layer 2 (Memory ผ่าน Checkpointer) + 3 (Tools) + 5 (Reasoning Loop เป็น graph) เข้าด้วยกัน — จุด pivot ที่ framework ห่อหลาย layer ให้
+
 ---
 
 ## จุดประสงค์การเรียนรู้

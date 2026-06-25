@@ -2,6 +2,8 @@
 
 > หลักสูตร **Agentic AI Development with Python (หลักสูตรที่ 2)** — Module 2.1
 
+> **ตำแหน่งใน [8 Layer ของ repo](../../README.md#สถาปัตยกรรม-agent-app--agent--llm--8-layers):** Layer 3 (Tools+**Skills**) + Layer 1 (Instructions) — โหลด skill ตาม domain แบบ Progressive Disclosure (เลือก context ที่ป้อนให้โมเดล)
+
 ---
 
 ## จุดประสงค์การเรียนรู้

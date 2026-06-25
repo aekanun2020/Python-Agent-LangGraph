@@ -66,6 +66,65 @@ Python-Agent-LangGraph/
 
 ---
 
+## สถาปัตยกรรม Agent: App → Agent → LLM + 8 Layers
+
+เพื่อให้เข้าใจว่าแต่ละ Lab "กำลังสร้างชิ้นส่วนไหนของ Agent" repo นี้ยึดภาพสถาปัตยกรรมเดียวกันทั้งหลักสูตร
+หัวใจคือ **LLM ทำหน้าที่ reasoning/decision** แต่สิ่งที่ทำให้มันเป็น "Agent" และประกอบขึ้นเป็น "App" จริง
+คือ layer ที่ห่อรอบ LLM ต่างหาก
+
+```
+┌──────────────────────────────────────────────┐
+│                    APP                         │
+│  + UI, Auth, DB, Business Logic, Infra         │
+│  ┌──────────────────────────────────────────┐ │
+│  │              AGENT                        │ │
+│  │  + Memory, Tools, Hooks, State            │ │
+│  │   ┌────────────────────────────────┐      │ │
+│  │   │           LLM                  │      │ │
+│  │   │  (reasoning / decision)        │      │ │
+│  │   └────────────────────────────────┘      │ │
+│  └──────────────────────────────────────────┘ │
+└──────────────────────────────────────────────┘
+```
+
+กางภาพข้างบนออกเป็น **8 layer** ของ Agent harness — แต่ละ layer มีคำอธิบายและ **แหล่งอ้างอิงต้นทาง** (origin paper / เอกสารทางการของบริษัทเทคโนโลยี) ที่เข้าดูได้จริง:
+
+| # | Layer | ทำหน้าที่อะไร | แหล่งอ้างอิงต้นทาง (เปิดดูได้จริง) |
+| :-: | --- | --- | --- |
+| 1 | **Instructions / Bootstrap** | คำสั่งระบบ/บุคลิก/ขอบเขตที่โหลดตอนเริ่ม (เช่น `SOUL.md`, `AGENTS.md`) — กำหนดพฤติกรรมก่อนโมเดลเห็นงาน | Anthropic — [Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) |
+| 2 | **Memory** | ความจำสั้น/ยาว/procedural + compaction + note-taking | CoALA: [Cognitive Architectures for Language Agents](https://arxiv.org/abs/2309.02427) (Sumers et al., 2024) · Anthropic — [context engineering: compaction & note-taking](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) |
+| 3 | **Tools + Skills** | ความสามารถภายนอก (MCP) + procedure ที่นำกลับมาใช้ซ้ำ (Skills) โหลดตามความจำเป็น | Anthropic — [Introducing the Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) · [Agent Skills (Claude Docs)](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) |
+| 4 | **Hooks** | callback ที่ดักจังหวะ lifecycle ของ agent (เช่น `PreToolUse`/`PostToolUse`/`Stop`) เพื่อ log/บล็อก/แทรก context แบบ deterministic | Anthropic — [Claude Code Hooks reference](https://code.claude.com/docs/en/hooks) |
+| 5 | **Reasoning Loop** | วงคิด-ทำ-สังเกต (reason → act → observe → วน) แกนของ agent | ReAct: [Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) (Yao et al., ICLR 2023) |
+| 6 | **Sandbox + Execution** | ที่รันโค้ด/คำสั่งที่โมเดลสร้างขึ้นแบบแยกขอบเขต (Docker/VM/Computer Use) | Anthropic — [Computer use tool](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/computer-use-tool) · [Code execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp) |
+| 7 | **Gateway + Scheduler** | ช่องทางเข้า-ออก (HTTP/Telegram/Slack) + ตัวกระตุ้นตามเวลา (Cron) | Anthropic — [MCP: Transports (Streamable HTTP / stdio)](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports) |
+| 8 | **Safety Layer** | permission gating, audit trail, self-check + containment ที่ environment layer | Anthropic — [How we contain Claude across products](https://www.anthropic.com/engineering/how-we-contain-claude) |
+
+> หมายเหตุ: CoALA (layer 2) และ ReAct (layer 5) เป็น academic paper ส่วน MCP/Skills/Hooks/Computer Use/Containment เป็นเอกสารทางการของ Anthropic
+
+### แต่ละ Lab อยู่ตรงไหนของ 8 Layer นี้
+
+สัญลักษณ์: ● = เป็นแกนหลักของ Lab นั้น · ◐ = แตะ/มีบางส่วน · (ว่าง) = ไม่มี
+
+| Layer | L1 | L2 | L3 | L4 | L5 | L6 | L7 | L8 | L9 |
+| --- | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: |
+| 1. Instructions / Bootstrap | | | ◐ | ◐ | ● | ◐ | ◐ | ◐ | ◐ |
+| 2. Memory | | | | | | | ● | ● | ◐ |
+| 3. Tools + Skills | ◐ | | ◐ | ● | ● | ● | ● | ● | ● |
+| 4. Hooks | | | | | | | ◐* | | ◐* |
+| 5. Reasoning Loop | | | ● | ● | ● | ● | ● | ● | ◐ |
+| 6. Sandbox + Execution | | | ◐* | | | | | | ◐* |
+| 7. Gateway + Scheduler | | | | | | | | | ◐ |
+| 8. Safety Layer | | | ◐* | | | | | | ◐ |
+
+> `◐*` = มีร่องรอย/พฤติกรรมคล้าย แต่ยังไม่ใช่ระบบจริงตามนิยาม layer
+> **สรุป coverage:** ครบจริง 4 layer (1, 2, 3, 5) · มีบางส่วน 1 layer (7 — มี HTTP gateway แต่ยังไม่มี Telegram/Slack/Cron) · ยังไม่มีจริง 3 layer (4 Hooks, 6 Sandbox/Execution, 8 Safety)
+> รายละเอียด gap + เหตุผลว่าทำไม layer 4/6/8 อยู่นอกขอบเขต `course2_outline-1.pdf` อธิบายไว้ที่ [Lab 9 — Layer Coverage & Gaps](labs/lab9_deploy/README.md) (มีภาพ matrix ประกอบ)
+
+README ของแต่ละ Lab จะมีบรรทัด **"ตำแหน่งใน 8 Layer"** บอกว่า Lab นั้นสร้างชิ้นส่วนไหนของภาพนี้
+
+---
+
 ## หมายเหตุด้านความปลอดภัย
 
 - `.env` (คีย์จริง) ถูก `gitignore` ไว้ — repo นี้มีเฉพาะ `.env.example` ที่ไม่มีคีย์จริง

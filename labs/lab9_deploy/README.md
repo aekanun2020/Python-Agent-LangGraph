@@ -2,6 +2,8 @@
 
 หลักสูตร Agentic AI Development with Python — **Module 3.3**
 
+> **ตำแหน่งใน [8 Layer ของ repo](../../README.md#สถาปัตยกรรม-agent-app--agent--llm--8-layers):** ระดับ **App** — ห่อ Agent ของ Lab 8 ด้วย Layer 7 (Gateway: FastAPI `/chat`) + แตะ Layer 6/8 (Docker, retry/logging). ดูตารางเต็มที่หัวข้อ Layer Coverage & Gaps ด้านล่าง
+
 ปิด loop ทั้งหลักสูตร: นำ **LangGraph Agent ของ Lab 8** มาห่อเป็น **API Service** ด้วย
 FastAPI แล้ว deploy เป็น **Docker Container** สำหรับ Production พร้อม Error Handling,
 Retry และ Logging

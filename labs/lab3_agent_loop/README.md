@@ -2,6 +2,8 @@
 
 > หลักสูตร **Agentic AI Development with Python (หลักสูตรที่ 2)** — Module 1.3
 
+> **ตำแหน่งใน [8 Layer ของ repo](../../README.md#สถาปัตยกรรม-agent-app--agent--llm--8-layers):** Layer 5 (Reasoning Loop) เป็นหลัก — สร้างวง reason→act→observe ด้วยมือ (ReAct) + แตะ Layer 3 ด้วย local tools
+
 ---
 
 ## จุดประสงค์การเรียนรู้

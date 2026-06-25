@@ -2,6 +2,8 @@
 
 > หลักสูตร **Agentic AI Development with Python (หลักสูตรที่ 2)** — Module 1.2
 
+> **ตำแหน่งใน [8 Layer ของ repo](../../README.md#สถาปัตยกรรม-agent-app--agent--llm--8-layers):** ฐานก่อน Layer 3 (Tools+Skills) — ตรวจว่า LLM (แกนกลาง) + ช่องต่อ MCP tools พร้อมใช้ ก่อนจะเริ่มประกอบ layer อื่น
+
 **Lab นี้เป็นเจ้าของ Setup สภาพแวดล้อมเต็มรูปแบบ** — Lab 2–9 ทุกตัวต้องผ่านขั้นตอนนี้ก่อน
 
 ---
