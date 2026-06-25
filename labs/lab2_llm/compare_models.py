@@ -15,7 +15,7 @@ from labs.core import llm
 # ปรับรายชื่อโมเดลได้ตามที่อยากเทียบ (ชื่อโมเดลตามรูปแบบ OpenRouter)
 MODELS = [
     "anthropic/claude-sonnet-4.6",
-    "openai/gpt-4o-mini",
+    "openai/gpt-oss-120b",
     "meta-llama/llama-3.1-8b-instruct",
 ]
 
