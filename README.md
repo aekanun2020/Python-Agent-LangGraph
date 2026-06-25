@@ -30,7 +30,7 @@ cd Python-Agent-LangGraph
 ```
 
 > **Setup สภาพแวดล้อมเต็มรูปแบบ (conda env + `.env` + dependencies) อยู่ที่ [Lab 1](labs/lab1_setup/README.md)** — เป็นแหล่งเดียว (single source) ทำครั้งเดียวก่อนเริ่มทำ Lab อื่นทั้งหมด
-> (สรุปขั้นตอน setup แบบย่ออยู่ท้ายไฟล์นี้ ส่วนรายละเอียดครบอยู่ใน Lab 1)
+> (ดูสรุปแบบย่อในหัวข้อ [การติดตั้งและการรัน](#การติดตั้งและการรัน) ด้านล่าง ส่วนรายละเอียดครบอยู่ใน Lab 1)
 
 ---
 
@@ -111,60 +111,35 @@ Python-Agent-LangGraph/
 
 ---
 
-## สรุปการติดตั้ง (รายละเอียดเต็มอยู่ที่ Lab 1)
+## การติดตั้งและการรัน
 
-> แล็บนี้พัฒนาและทดสอบด้วย **Miniconda** (Python 3.11) — ขั้นตอนเต็มพร้อมตาราง env อยู่ใน [Lab 1](labs/lab1_setup/README.md)
+เพื่อไม่ให้ขั้นตอนซ้ำซ้อนและคลาดเคลื่อนกันหลายที่ ไฟล์นี้**ไม่ทำซ้ำ**คำสั่ง setup/run
+แต่ชี้ไปยังแหล่งจริงที่เป็นเจ้าของเนื้อหานั้นโดยตรง:
 
-```bash
-# 1) conda env
-conda create -n agentic-ai python=3.11 -y
-conda activate agentic-ai
-
-# 2) dependencies
-pip install -r requirements.txt
-
-# 3) ตั้งค่า .env (คัดลอกเทมเพลตแล้วใส่ค่าจริง)
-cp .env.example .env
-```
-
-จากนั้นแก้ `.env`:
-
-- ใส่ `OPENROUTER_API_KEY` ของคุณ (ขอคีย์ได้ที่ https://openrouter.ai/keys)
-- ตั้ง `MCP_SERVER_URL` ให้ชี้ไปยัง **MCP MSSQL Server จริง** ของคุณ (เปิด MCP MSSQL ในเครื่องแล้ว expose ผ่าน ngrok เช่น `https://<subdomain>.ngrok-free.app/mcp`)
+- **ติดตั้งสภาพแวดล้อม (conda env `agentic-ai` + `.env` + dependencies):** ดู [Lab 1](labs/lab1_setup/README.md)
+  ซึ่งเป็น **แหล่งเดียว (single source)** — ทำครั้งเดียวก่อนเริ่มทุก Lab (พัฒนา/ทดสอบด้วย **Miniconda**, Python 3.11)
+- **คำสั่งรันของแต่ละ Lab + ผลลัพธ์ที่คาดหวัง:** ดู README ของ Lab นั้นโดยตรง — เริ่มจากสารบัญใน [`labs/README.md`](labs/README.md)
+- **(ตัวเลือก) ตรวจการเชื่อมต่อ MCP + ดู tools ที่ค้นพบ:** `python discover_mssql.py`
 
 > ⚠️ ไฟล์ `.env` ถูก `gitignore` ไว้แล้ว — **ห้าม commit คีย์จริงขึ้น repo เด็ดขาด**
 
 ---
 
-## การรันแต่ละ Lab
-
-แต่ละ Lab รันจาก root repo ได้โดยตรง (ดูคำสั่งและผลลัพธ์ที่คาดหวังใน README ของแต่ละ Lab):
-
-```bash
-conda activate agentic-ai
-
-python labs/lab1_setup/check_env.py                 # Lab 1: ตรวจ LLM + MCP ก่อนเริ่ม
-python labs/lab2_llm/first_llm.py "คำถามของคุณ"      # Lab 2
-python labs/lab3_agent_loop/agent_loop.py "คำถาม"   # Lab 3
-python labs/lab4_mcp_agent/agent_mcp.py "คำถาม"     # Lab 4
-python labs/lab5_skills/agent_skills.py "คำถาม"     # Lab 5
-python labs/lab6_todo/agent_todo.py                 # Lab 6
-python labs/lab7_memory/agent_memory.py             # Lab 7
-python labs/lab8_langgraph/agent_langgraph.py       # Lab 8 (LangGraph)
-
-# Lab 9: deploy เป็น API
-uvicorn labs.lab9_deploy.app:app --host 0.0.0.0 --port 8080
-# หรือ
-docker compose up --build
-```
-
-> (ตัวเลือก) ตรวจการเชื่อมต่อ MCP + ดู tools ที่ค้นพบ: `python discover_mssql.py`
-
----
-
 ## ตัวอย่างผลการรันทดสอบ — Lab 8 (LangGraph + MCP MSSQL จริง)
 
-Lab 8 เป็นจุด pivot ของหลักสูตร (Pure Python → LangGraph) จึงยกผลรันมาเป็นตัวอย่างเด่น
+### ทำไมยก Lab 8 มาไว้ที่หน้าแรกของ repo
+
+หน้าแรกของ repo ควรพิสูจน์ "ผลลัพธ์ที่สำคัญที่สุด" ให้คนเปิดดูครั้งแรกเห็นทันทีว่าโปรเจกต์นี้ทำอะไรได้จริง
+**Lab 8 คือจุดที่รวมทุกอย่างของหลักสูตรเข้าด้วยกัน** จึงเป็นตัวแทนที่ดีที่สุดของทั้ง repo:
+
+- เป็น **จุด pivot ของหลักสูตร** (Pure Python Lab 1–7 → LangGraph) — หัวใจของ Module 3 (บท 3.1–3.2)
+- เป็น Lab ที่ Agent **ครบองค์ประกอบ**: ค้นพบ MCP tools เอง → วางแผนเรียก tool → เขียน T-SQL → สรุปผลธุรกิจ พร้อม Checkpointer จำ context ข้ามคำถาม
+- เป็น **ฐานที่ Lab 9 นำไป deploy** ต่อ — ถ้า Lab 8 ทำงานได้จริง ก็การันตีว่าแกนของทั้งหลักสูตรทำงานได้
+- screenshot ด้านล่างเป็น **ผลรันจริงกับ MCP MSSQL Server จริง** (ไม่ใช่ mock) จึงเหมาะใช้เป็นหลักฐานหน้า repo
+
+> ผลรันของ Lab อื่น (1, 3–7, 9) ไม่ได้หายไป — อยู่ในโฟลเดอร์ `screenshots/labs/` และอ้างถึงใน README ของแต่ละ Lab ตามบริบทของมัน
+> ส่วนนี้ตั้งใจโชว์เฉพาะ Lab 8 เพื่อไม่ให้หน้าแรกยาวเกินจำเป็น
+
 องค์ประกอบ LangGraph ที่สาธิต:
 
 | องค์ประกอบ | ในโค้ดนี้ |
@@ -184,8 +159,7 @@ Lab 8 เป็นจุด pivot ของหลักสูตร (Pure Python
 ### 3. Business Question 2 — Top-5 พนักงานตามมูลค่าโครงการรวม (+ Checkpointer)
 ![Agent Q2](screenshots/labs/lab8_03_agent_q2.png)
 
-> Agent วางแผนเรียก tool เอง (context → query → สรุป) และ `Checkpointer` (`MemorySaver`) จำ context ข้ามคำถามในthread เดียวกันได้จริง
-> screenshot ของ Lab อื่น (1, 3–7, 9) อยู่ในโฟลเดอร์ `screenshots/labs/` และอ้างถึงใน README ของแต่ละ Lab
+> Agent วางแผนเรียก tool เอง (context → query → สรุป) และ `Checkpointer` (`MemorySaver`) จำ context ข้ามคำถามใน thread เดียวกันได้จริง
 
 ---
 
