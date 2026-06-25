@@ -187,6 +187,8 @@ course outline ข้อ 3.3 กำหนดให้ deploy ด้วย **Dock
 สถาปัตยกรรม agent มี 8 layer ตามแนวคิดทั่วไป — ตารางข้างล่างแมป Lab 1–9
 ของหลักสูตรนี้เข้ากับแต่ละ layer เพื่อให้เห็นชัดว่าหลักสูตรครอบอะไร และ **ยังขาดอะไร**
 
+![Layer Coverage Matrix — Layer 1–8 × Lab L1–L9](../../screenshots/labs/layer_coverage_matrix.png)
+
 สัญลักษณ์: ● = เป็นแกนหลักของ Lab นั้น · ◐ = แตะ/มีบางส่วน · (ว่าง) = ไม่มี
 
 | Layer | L1 | L2 | L3 | L4 | L5 | L6 | L7 | L8 | L9 |
