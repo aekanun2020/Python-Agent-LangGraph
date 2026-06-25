@@ -1,6 +1,23 @@
-# Lab 8 — สร้าง Agent ด้วย LangGraph + MCP (MSSQL จริง)
+# Python-Agent-LangGraph
 
-> หลักสูตร **Agentic AI Development with Python (หลักสูตรที่ 2)** — Module 3.1
+> หลักสูตร **Agentic AI Development with Python (หลักสูตรที่ 2)** —
+> เขียน Agent ด้วย Pure Python ทีละขั้น (Lab 1–7) แล้วเปรียบเทียบกับ LangGraph (Lab 8) ก่อน deploy เป็น API Service (Lab 9)
+
+---
+
+## เริ่มต้น (Clone Repository)
+
+```bash
+git clone https://github.com/aekanun2020/Python-Agent-LangGraph.git
+cd Python-Agent-LangGraph
+```
+
+> **Setup สภาพแวดล้อมเต็มรูปแบบ (conda env + `.env` + dependencies) อยู่ที่ [Lab 1](labs/lab1_setup/README.md)** — ทำครั้งเดียวก่อนเริ่มทำ Lab อื่น
+
+---
+
+## เนื้อหา Repository (Lab 8 — LangGraph + MCP MSSQL จริง)
+
 > ต่อยอดจากหลักสูตรที่ 1 (Implementing MCP Server) โดยเปลี่ยนจาก *การใช้* MCP ผ่าน Claude Desktop/LangFlow มาเป็น *การเขียน* Agent ด้วย Pure Python + LangGraph ที่เรียกใช้ MCP Server เดียวกัน
 
 แล็บนี้สาธิตการประกอบ **LangGraph Agent** ครบทุกองค์ประกอบหลักตาม course outline และให้ Agent ค้นพบ (discover) และเรียกใช้ **MCP Tools** ของ **MCP MSSQL Server จริง** (หลักสูตรที่ 1) ผ่าน **Streamable HTTP** โดยมี **OpenRouter** เป็น LLM provider (แนวคิด thin client เดียวกับหลักสูตรที่ 1)

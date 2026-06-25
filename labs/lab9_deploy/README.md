@@ -8,6 +8,80 @@ Retry และ Logging
 
 ---
 
+## จุดประสงค์การเรียนรู้
+
+- ห่อ LangGraph Agent เป็น **HTTP API service** ด้วย FastAPI (`POST /chat`, `GET /health`) โดย reuse `build_graph()` จาก Lab 8 ไม่เขียน agent ซ้ำ
+- ทำ **Error Handling** ที่ถูกต้อง: agent error → HTTP 502, agent ยังไม่พร้อม → HTTP 503 แทนที่จะ crash
+- สร้าง **Retry Strategy** แบบ exponential backoff (`build_graph_with_retry()`) เพื่อรองรับ container startup race condition
+- ติดตั้ง **Logging** ทุก request และทุก tool call เพื่อ debug agent behavior ใน production
+- Deploy ด้วย **Docker Compose** — containerize agent service และชี้ MCP Server จริงผ่าน environment variable
+
+---
+
+## สิ่งที่ต้องเตรียมก่อน (Prerequisites)
+
+- ทำ Setup สภาพแวดล้อมใน [Lab 1](../lab1_setup/README.md) ให้เสร็จก่อน (conda env `agentic-ai` + `.env`)
+- ต้องมี `MCP_SERVER_URL` ใน `.env` ชี้ไปยัง MCP MSSQL Server จริง
+- (สำหรับ Docker) ติดตั้ง Docker Desktop และ Docker Compose
+
+---
+
+## อธิบายจุดสำคัญของโค้ด
+
+ไฟล์: `labs/lab9_deploy/app.py`
+
+### `build_graph_with_retry()` — Retry Strategy (outline 3.3)
+
+```python
+for attempt in range(1, MCP_MAX_RETRIES + 1):
+    try:
+        graph = await build_graph()
+        return graph
+    except Exception as e:
+        wait = MCP_BACKOFF_BASE ** attempt   # exponential backoff
+        await asyncio.sleep(wait)
+```
+
+เรียก `build_graph()` ของ Lab 8 ซ้ำด้วย exponential backoff (`MCP_BACKOFF_BASE=1.5`) กัน container เพิ่งสตาร์ตแล้ว MCP Server ยังไม่พร้อม ควบคุมได้ผ่าน env var `MCP_MAX_RETRIES` และ `MCP_BACKOFF_BASE`
+
+### `lifespan(_: FastAPI)` — สร้าง agent ครั้งเดียวตอน startup
+
+```python
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    _state["app"] = await build_graph_with_retry()
+    yield
+    _state["app"] = None
+```
+
+`_state["app"]` เก็บ compiled graph ไว้ระดับ process — ทุก request ใช้ instance เดิมไม่ต้องสร้างใหม่
+
+### `GET /health` — health check
+
+```python
+return {"status": "ok", "agent_ready": _state["app"] is not None, "mcp_server": MCP_SERVER_URL}
+```
+
+Docker healthcheck เรียก endpoint นี้ตรวจว่า agent พร้อมรับ request แล้วหรือยัง
+
+### `POST /chat` — Error Handling + Logging
+
+```python
+try:
+    result = await graph.ainvoke({"messages": msgs}, config=config)
+except Exception as e:
+    raise HTTPException(status_code=502, detail=f"agent error: {e}")  # ไม่ให้ service ล่ม
+
+if tool_calls:
+    log.info("[/chat thread=%s] tool calls: %s", req.thread_id, tool_calls)  # Logging
+```
+
+`ChatRequest` รับ `thread_id` เพื่อแยก Checkpointer memory ต่อผู้ใช้ ส่ง thread_id เดิมซ้ำ = agent จำ context ต่อเนื่อง
+
+> จุดที่ควรเปิดอ่าน: บล็อก `for m in result["messages"]: for tc in getattr(m, "tool_calls", None) or []:` — วิธีดึงชื่อ tool ที่ถูกเรียกจาก LangGraph message history
+
+---
+
 ## ไฟล์ใน Lab นี้
 
 | ไฟล์ | หน้าที่ |

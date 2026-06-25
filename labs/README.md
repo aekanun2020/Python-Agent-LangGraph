@@ -34,15 +34,15 @@ Lab 3  agent loop (local tools)
 
 | Lab | โฟลเดอร์ | เนื้อหา (อ้างอิง outline) | สิ่งที่เพิ่มจาก Lab ก่อน |
 |-----|----------|---------------------------|---------------------------|
-| 1 | `lab1_setup/check_env.py` | ตรวจสภาพแวดล้อม — บทที่ 1.2 | ตรวจ LLM + MCP เป็น precondition |
-| 2 | `lab2_llm/first_llm.py`, `compare_models.py` | เรียก LLM ครั้งแรก + เทียบโมเดล — บทที่ 1.2 | messages/role + token usage |
-| 3 | `lab3_agent_loop/agent_loop.py` | Agent loop แรก (Pure Python) — บทที่ 1.3 | while loop + local tools |
-| 4 | `lab4_mcp_agent/agent_mcp.py` | Agent + MCP จริง — บทที่ 1.4 | MCP client + Tool Registry |
-| 5 | `lab5_skills/agent_skills.py` | Skill routing — บทที่ 2.1 | SkillLoader + Progressive Disclosure |
-| 6 | `lab6_todo/agent_todo.py` | TodoWrite — บทที่ 2.2 | วางแผนงานหลายขั้นใน state |
-| 7 | `lab7_memory/agent_memory.py` | Memory — บทที่ 2.3 | จำข้ามรอบ + compaction + notes |
-| 8 | `lab8_langgraph/agent_langgraph.py` | LangGraph Agent — บทที่ 3.1 | State/Node/Edge/Checkpointer (เทียบ Pure Python) |
-| 9 | `lab9_deploy/` (app.py, Dockerfile) | Deploy — บทที่ 3.3 | FastAPI `/chat` + Docker + Retry/Logging |
+| [1](lab1_setup/README.md) | `lab1_setup/check_env.py` | ตรวจสภาพแวดล้อม — บทที่ 1.2 | ตรวจ LLM + MCP เป็น precondition |
+| [2](lab2_llm/README.md) | `lab2_llm/first_llm.py`, `compare_models.py` | เรียก LLM ครั้งแรก + เทียบโมเดล — บทที่ 1.2 | messages/role + token usage |
+| [3](lab3_agent_loop/README.md) | `lab3_agent_loop/agent_loop.py` | Agent loop แรก (Pure Python) — บทที่ 1.3 | while loop + local tools |
+| [4](lab4_mcp_agent/README.md) | `lab4_mcp_agent/agent_mcp.py` | Agent + MCP จริง — บทที่ 1.4 | MCP client + Tool Registry |
+| [5](lab5_skills/README.md) | `lab5_skills/agent_skills.py` | Skill routing — บทที่ 2.1 | SkillLoader + Progressive Disclosure |
+| [6](lab6_todo/README.md) | `lab6_todo/agent_todo.py` | TodoWrite — บทที่ 2.2 | วางแผนงานหลายขั้นใน state |
+| [7](lab7_memory/README.md) | `lab7_memory/agent_memory.py` | Memory — บทที่ 2.3 | จำข้ามรอบ + compaction + notes |
+| [8](lab8_langgraph/README.md) | `lab8_langgraph/agent_langgraph.py` | LangGraph Agent — บทที่ 3.1 | State/Node/Edge/Checkpointer (เทียบ Pure Python) |
+| [9](lab9_deploy/README.md) | `lab9_deploy/` (app.py, Dockerfile) | Deploy — บทที่ 3.3 | FastAPI `/chat` + Docker + Retry/Logging |
 
 ---
 
