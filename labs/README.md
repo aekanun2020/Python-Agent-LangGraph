@@ -30,6 +30,29 @@ Lab 3  agent loop (local tools)
 
 ---
 
+## เส้นทางการเรียนรู้: กว่าจะไปถึง Lab 8 ผู้เรียนเดินผ่านอะไรบ้าง
+
+แผนผังข้างบนไม่ใช่แค่ลำดับไฟล์ — มันคือ **ลำดับการสะสมทักษะ** ทีละชิ้น ก่อนจะถึงจุด pivot ที่ Lab 8
+ผู้เรียนเดินไปตามลำดับนี้ (ตรงกับภาพ dependency chain ด้านบน):
+
+| ขั้น | ผู้เรียนได้อะไรเพิ่ม | ทำไมต้องมีขั้นนี้ก่อน Lab 8 |
+|------|-----------------|------------------------|
+| **Lab 1–2** | เชื่อม LLM ผ่าน OpenRouter (thin client), รู้ messages/role + token | ถ้าไม่รู้ว่า "เรียก model ยังไง" จะไม่เข้าใจ node `call_model` ของ LangGraph |
+| **Lab 3** | เขียน **agent loop ด้วยมือ** (while loop: model → tool → observe → วน) | เข้าใจว่า LangGraph แท้จริงก็คือ loop นี้ที่ถูกย้ายไปเป็น graph (node/edge) |
+| **Lab 4** | ต่อ **MCP จริง** + Tool Registry (แปลง inputSchema → OpenAI tools) | tools ชุดเดียวกันถูกนำไปใส่ใน `ToolNode` ของ LangGraph |
+| **Lab 5** | **Skill routing** (Progressive Disclosure — ใส่แค่ดัชนี skill) | แนวคิด routing ตามเงื่อนไข = รากฐานของ conditional edge ใน LangGraph |
+| **Lab 6** | **TodoWrite** — วางแผนงานหลายขั้นใน state | รู้จักแนวคิด "state ที่ไหลข้าม step" — ตรงกับ `AgentState` ของ LangGraph |
+| **Lab 7** | **Memory** + compaction + note-taking (จำข้ามรอบเอง) | รู้ปัญหาที่ LangGraph แก้ด้วย **Checkpointer/MemorySaver** ให้ built-in |
+
+➜ **ถึง Lab 8 — pivot:** เมื่อผู้เรียนเขียนทุกชิ้นข้างบนด้วยมือมาแล้ว จึงจะเข้าใจทันทีว่า
+LangGraph มาแทนส่วนไหน: loop → graph, state ที่เขียนเอง → `AgentState`, memory ที่จัดการเอง → `Checkpointer`.
+นี่คือหัวใจของ **บท 3.2 (Pure Python vs LangGraph)** — ผู้เรียนเห็นด้วยตาตัวเองว่า framework
+ช่วยลดโค้ดส่วนไหน และแลกมาด้วยอะไร (ควบคุมน้อยลง, ต้องเรียน abstraction เพิ่ม)
+
+➜ **ต่อ Lab 9:** นำ LangGraph agent จาก Lab 8 ไปห่อเป็น API service + Docker (deploy จริง)
+
+---
+
 ## รายการ Lab
 
 | Lab | โฟลเดอร์ | เนื้อหา (อ้างอิง outline) | สิ่งที่เพิ่มจาก Lab ก่อน |
