@@ -123,6 +123,28 @@ Python-Agent-LangGraph/
 
 README ของแต่ละ Lab จะมีบรรทัด **"ตำแหน่งใน 8 Layer"** บอกว่า Lab นั้นสร้างชิ้นส่วนไหนของภาพนี้
 
+### กรอบ "Agent Harness": repo นี้สร้างอะไร และอยู่ในขอบเขตไหน
+
+**Agent harness** คือ runtime ที่ครอบ LLM ไว้ ทำหน้าที่วน loop เรียกโมเดล → รัน tool → ป้อนผลกลับ → จัดการ context จนงานเสร็จ — ตามที่ Anthropic นิยามว่า agent คือ "ระบบที่ LLM กำกับกระบวนการและการใช้ tool ของตัวเองแบบ dynamic โดยใช้ tool ตาม feedback จาก environment แบบวน loop" ([Anthropic — Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents))
+
+**repo นี้ = harness ของ single-agent ที่ "ถอดประกอบให้เห็นทุกชิ้น"** — Lab 1–7 เขียนแต่ละชิ้นส่วนของ harness ด้วย Pure Python เอง (ผ่านโมดูลกลางใน `labs/core/`) ก่อนจะเห็นใน Lab 8 ว่า LangGraph ห่อชิ้นส่วนเหล่านั้นให้อย่างไร แล้ว Lab 9 นำไป deploy แต่ละชิ้นส่วน map ตรงกับ 8 layer ด้านบน:
+
+| ชิ้นส่วน harness (เขียนเองใน repo) | ไฟล์/Lab ที่สร้าง | ตรงกับ Layer | LangGraph ห่อให้ (Lab 8) |
+| --- | --- | :--: | --- |
+| Reasoning loop (while: model→tool→observe) | `lab3_agent_loop` | **5** | `StateGraph` + conditional edge |
+| Tool/skill registry (MCP→OpenAI schema) | `core/registry.py`, `lab4` | **3** | `ToolNode` + `MultiServerMCPClient` |
+| Skill routing (Progressive Disclosure) | `lab5_skills` | **3 + 1** | conditional edge |
+| Plan state (TodoWrite) | `lab6_todo` | **3 → 2** | state ใน `AgentState` |
+| Memory + compaction + notes | `lab7_memory` | **2** | `MemorySaver` checkpointer |
+| Prompt/instruction assembly | `core/llm.py`, system prompts | **1** | system message ใน state |
+| API gateway (FastAPI `/chat`) | `lab9_deploy` | **7** | — (ชั้น deploy) |
+
+**ขอบเขตที่ตั้งใจ: single-agent harness เท่านั้น** — ครบ 4 layer หลัก (1, 2, 3, 5) ตามตาราง coverage ด้านบน ตรงกับ `course2_outline-1.pdf` ทั้งหมด
+
+**สิ่งที่อยู่เหนือกรอบนี้ (ไม่อยู่ใน repo): multi-agent orchestration** — เมื่อโจทย์ซับซ้อนเกินกว่า agent เดียว (context เต็ม, ต้อง parallelize, ต้องการ specialist) จึงขยับเป็นหลาย agent ที่มี supervisor route งานไป worker — LangGraph รองรับ pattern นี้อย่างเป็นทางการ (supervisor / network / hierarchical) ([LangGraph — Multi-Agent Systems](https://langchain-ai.github.io/langgraph/concepts/multi_agent/)) และ Anthropic เรียก pattern คล้ายกันว่า orchestrator-workers ([Anthropic — Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents)) ส่วนนี้คือ **module ถัดไป นอกขอบเขต outline ของ course2** — ปัจจุบัน repo จึงไม่มี layer สำหรับ sub-agent orchestration
+
+> สรุป: repo นี้คือ harness ของ agent ตัวเดียวที่สร้างครบ layer 1/2/3/5 และนำไป deploy — multi-agent (supervisor + worker) คือชั้นที่ครอบขึ้นไป ซึ่งเป็นเนื้อหานอก outline ของ course2
+
 ---
 
 ## หมายเหตุด้านความปลอดภัย
