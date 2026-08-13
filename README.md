@@ -49,7 +49,8 @@ Python-Agent-LangGraph/
 │   ├── lab6_todo/              # Lab 6: + TodoWrite
 │   ├── lab7_memory/            # Lab 7: + Memory/Compaction/Note-taking
 │   ├── lab8_langgraph/         # Lab 8: LangGraph Agent (pivot — เทียบ Pure Python)
-│   └── lab9_deploy/            # Lab 9: ห่อ agent เป็น FastAPI API + Docker
+│   ├── lab9_deploy/            # Lab 9: ห่อ agent เป็น FastAPI API + Docker
+│   └── lab10_pure_python_analytics/ # Lab 10: autonomous Spark analytics โดยไม่ใช้ LangGraph
 ├── docker-compose.yml          # Lab 9: service agent (ชี้ MCP MSSQL จริงผ่าน .env)
 ├── .dockerignore
 ├── discover_mssql.py           # ยูทิลิตี้ตรวจการเชื่อมต่อ + list tools/args schema
@@ -63,6 +64,8 @@ Python-Agent-LangGraph/
 ├── .gitignore
 └── (README.md)
 ```
+
+> ต้องการดู Agent แบบ Pure Python ทำงานใหญ่ครบวงจร ให้เริ่มที่ [Lab 10 — Security Analytics Agent](labs/lab10_pure_python_analytics/README.md) ซึ่งรับ ZIP, เลือก vendor skill, เขียนและ submit PySpark แล้วสร้าง dashboard โดยไม่ใช้ LangGraph
 
 ---
 

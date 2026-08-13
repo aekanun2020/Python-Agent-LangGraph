@@ -1,0 +1,4 @@
+# Runtime สำหรับ Lab 1-7 และ Lab 10 เท่านั้น — ไม่มี LangGraph
+openai>=1.0
+python-dotenv>=1.0
+httpx>=0.27

@@ -23,3 +23,6 @@ venv/
 # ---- Logs / ชั่วคราว ----
 *.log
 .DS_Store
+
+# Lab 10 runtime evidence may contain environment-specific paths and failed drafts.
+artifacts/lab10_security_agent/
